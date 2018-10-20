@@ -1,7 +1,10 @@
 package utils;
 
+import drawables.Point;
+
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 public class Renderer {
 
@@ -91,6 +94,54 @@ public class Renderer {
             y0 = y;
 
 
+        }
+    }
+
+    public void kruznice(int x1, int y1, int x2,int y2){
+        int R = (int)Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+        int dveX = 3;
+        int dveY = 2 * R - 2;
+        int p = 1 - R;
+        int x = 0;
+        int y = R;
+        while (x <= y) {
+            drawKruznice(x1, y1, x, y);
+            if (p > 0) {
+                p -= dveY;
+                dveY -= 2;
+                --y;
+            }
+            p += dveX;
+            dveX += 2;
+            ++x;
+        }
+
+    }
+
+    public void drawKruznice(int x1, int y1, int x2, int y2){
+        img.setRGB(x1 + x2, y1 + y2, color);
+        img.setRGB(x1 - x2, y1 + y2, color);
+        img.setRGB(x1 + x2, y1 - y2, color);
+        img.setRGB(x1 - x2, y1 - y2, color);
+        if (x2 != y2) {
+            img.setRGB(x1 + y2, y1 + x2, color);
+            img.setRGB(x1 - y2, y1 + x2, color);
+            img.setRGB(x1 + y2, y1 - x2, color);
+            img.setRGB(x1 - y2, y1 - x2, color);
+        }
+    }
+
+    public void pol(List<Point> points){
+        int x1,y1,x2,y2;
+        int i = 0;
+        int f = points.size();
+        while (i<f-1){
+            x1 = points.get(i).getX();
+            y1 = points.get(i).getY();
+            x2 = points.get(i+1).getX();
+            y2 = points.get(i+1).getY();
+            i++;
+            lineDDA(x1,y1,x2,y2);
         }
     }
 
