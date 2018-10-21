@@ -7,14 +7,16 @@ import java.util.List;
 
 public class Polygon implements Drawable{
 
+    private int color;
     public List<Point> points;
 
     public Polygon() {
         points = new ArrayList<>();
     }
 
-    public Polygon(List<Point> points){
+    public Polygon(List<Point> points, int color){
         this.points = points;
+        this.color = color;
     }
 
     public List addPoint(Point p){
@@ -25,6 +27,6 @@ public class Polygon implements Drawable{
     @Override
     public void draw(Renderer renderer) {
         //TODO: for cyklus propojit body a nakonec prvni s poslednim
-        renderer.pol(points);
+        renderer.pol(points, color);
     }
 }

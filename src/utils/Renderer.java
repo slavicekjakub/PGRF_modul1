@@ -2,7 +2,6 @@ package utils;
 
 import drawables.Point;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -13,7 +12,6 @@ public class Renderer {
 
     public Renderer(BufferedImage img) {
         this.img = img;
-        color = Color.GREEN.getRGB();
     }
 
     public Renderer(BufferedImage img, int color){
@@ -25,13 +23,13 @@ public class Renderer {
         this.color = color;
     }
 
-    private void drawPixel(int x, int y) {
-        if (x < 0 || x > 800) return;
-        if (y < 0 || y > 600) return;
+    private void drawPixel(int x, int y, int color) {
+        if (x < 0 & x > 500) return;
+        if (y < 0 & y > 500) return;
         img.setRGB(x, y, color);
     }
 
-    public void lineDDA(int x1, int y1, int x2, int y2) { //TODO: Do projektu udelat Bresemham a budou Bonus Body (BB) :P
+    public void lineDDA(int x1, int y1, int x2, int y2, int color) {
         int dx, dy;
         float x, y, G, H;
 
@@ -69,14 +67,13 @@ public class Renderer {
         y = y1;
         int max = Math.max(Math.abs(dx), Math.abs(dy));
         for (int l = 0; l <= max; l++) {
-
-            drawPixel(Math.round(x), Math.round(y));
+            drawPixel(Math.round(x), Math.round(y),color);
             x += G;
             y += H;
         }
     }
 
-    public void polygon(int x1, int y1, int x2, int y2, int count) {
+    public void polygon(int x1, int y1, int x2, int y2, int count, int color) {
         double x0 = x2 - x1;
         double y0 = y2 - y1;
         double circleRaridus = 2 * Math.PI;
@@ -87,7 +84,7 @@ public class Renderer {
             //dle rotacni matice
             double x = x0 * Math.cos(step) + y0 * Math.sin(step);
             double y = y0 * Math.cos(step) - x0 * Math.sin(step);
-            lineDDA((int) x0 + x1, (int) y0 + y1, (int) x + x1, (int) y + y1);
+            lineDDA((int) x0 + x1, (int) y0 + y1, (int) x + x1, (int) y + y1, color);
 
             // potreba zmenit x0, y0
             x0 = x;
@@ -97,7 +94,7 @@ public class Renderer {
         }
     }
 
-    public void kruznice(int x1, int y1, int x2,int y2){
+    public void kruznice(int x1, int y1, int x2,int y2, int color){
         int R = (int)Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
         int dveX = 3;
         int dveY = 2 * R - 2;
@@ -105,7 +102,7 @@ public class Renderer {
         int x = 0;
         int y = R;
         while (x <= y) {
-            drawKruznice(x1, y1, x, y);
+            drawKruznice(x1, y1, x, y, color);
             if (p > 0) {
                 p -= dveY;
                 dveY -= 2;
@@ -118,7 +115,7 @@ public class Renderer {
 
     }
 
-    public void drawKruznice(int x1, int y1, int x2, int y2){
+    public void drawKruznice(int x1, int y1, int x2, int y2, int color){
         img.setRGB(x1 + x2, y1 + y2, color);
         img.setRGB(x1 - x2, y1 + y2, color);
         img.setRGB(x1 + x2, y1 - y2, color);
@@ -131,7 +128,7 @@ public class Renderer {
         }
     }
 
-    public void pol(List<Point> points){
+    public void pol(List<Point> points, int color){
         int x1,y1,x2,y2;
         int i = 0;
         int f = points.size();
@@ -141,51 +138,7 @@ public class Renderer {
             x2 = points.get(i+1).getX();
             y2 = points.get(i+1).getY();
             i++;
-            lineDDA(x1,y1,x2,y2);
+            lineDDA(x1,y1,x2,y2, color);
         }
-    }
-
-
-    public void Bresenham(int x1, int y1, int x2, int y2) {
-        int x, y, p, k1, k2, dy, dx;
-        dy = y2 - y1;
-        dx = x2 - x1;
-        x = x1;
-        y = y1;
-        p = 2 * dy - dx;
-        k1 = 2 * dy;
-        k2 = 2 * (dy - dx);
-        drawPixel(x, y);
-
-        if (Math.abs(dx) > Math.abs(dy)) {
-            if (x1 > x2) {
-                int pom = x1;
-                x1 = x2;
-                x2 = pom;
-                pom = y1;
-                y1 = y2;
-                y2 = pom;
-            }
-        } else {
-            if (y1 > y2) {
-                int pom = x1;
-                x1 = x2;
-                x2 = pom;
-                pom = y1;
-                y1 = y2;
-                y2 = pom;
-            }
-        }
-
-        while (x < x2) {
-            x = x + 1;
-            if (p < 0) p = p + k1;
-            else {
-                p = p + k2;
-                y = y + 1;
-            }
-            drawPixel(x, y);
-        }
-
     }
 }

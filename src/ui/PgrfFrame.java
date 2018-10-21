@@ -1,9 +1,12 @@
 package ui;
 
 import drawables.*;
+import drawables.Point;
+import drawables.Polygon;
 import utils.Renderer;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -15,8 +18,8 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
 
     static int FPS = 1000/60;
     private BufferedImage img;
-    static int width = 800;
-    static int height = 600;
+    static int width = 1200;
+    static int height = 800;
     private JPanel panel;
     private Renderer renderer;
     private Polygon polygon = new Polygon();
@@ -25,13 +28,14 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
     private int clickX = 300;
     private int clickY = 300;
     private int count = 5;
+    private int color = Color.GREEN.getRGB();
 
     private List<Drawable> drawables;
     private boolean firstClickLine = true;
     private boolean firstLeftClickLine = true;
     private boolean n = true;
     private boolean doubleClick = false;
-    private DrawableType type = DrawableType.N_OBJECT;
+    private DrawableType type = DrawableType.LINE;
 
     public static void main(String... args) {
         PgrfFrame pgrfFrame = new PgrfFrame();
@@ -59,9 +63,10 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
                             clickX = e.getX();
                             clickY = e.getY();
                             firstClickLine = !firstClickLine;
+                            firstLeftClickLine = true;
+                            color = Color.GREEN.getRGB();
                         }else {
-
-                            drawables.add(new Line(clickX,clickY,e.getX(),e.getY()));
+                            drawables.add(new Line(clickX,clickY,e.getX(),e.getY(),color));
                             firstClickLine = !firstClickLine;
                         }
                     }
@@ -71,9 +76,11 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
                             clickX = e.getX();
                             clickY = e.getY();
                             firstClickLine = false;
+                            firstLeftClickLine = true;
+                            color = Color.BLUE.getRGB();
                         }else {
                             draw();
-                            drawables.add(new DefPolygon(clickX,clickY,e.getX(),e.getY(),count));
+                            drawables.add(new DefPolygon(clickX,clickY,e.getX(),e.getY(),count,color));
                             firstClickLine = true;
                         }
                     }
@@ -83,7 +90,7 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
                         // znamena, ze se bude klikak a az bude dvojklik tak se spoji posledni s prvni
                         clickX = e.getX();
                         clickY = e.getY();
-
+                        firstLeftClickLine = true;
                         if(n){
                             polygon = new Polygon();
                             firstX = e.getX();
@@ -92,17 +99,18 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
                             polygon.addPoint(point);
                             n = !n;
                             firstClickLine = !firstClickLine;
+                            color = Color.RED.getRGB();
                         } else {
                             Point pos = new Point(clickX,clickY);
-                            drawables.add(new Polygon(polygon.addPoint(pos)));
+                            drawables.add(new Polygon(polygon.addPoint(pos),color));
                         }
                     }
 
-                    if(e.getClickCount()==2){
-                        System.out.println("b");
+                    if(e.getClickCount()==2 && type == DrawableType.N_OBJECT){
                         clickX = e.getX();
                         clickY = e.getY();
-                        drawables.add(new Line(firstX,firstY,clickX,clickY));
+                        color = Color.RED.getRGB();
+                        drawables.add(new Line(firstX,firstY,clickX,clickY,color));
                         firstClickLine = true;
                         n = true;
                         doubleClick = true;
@@ -111,11 +119,13 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
 
                 if(e.getButton()== MouseEvent.BUTTON3){
                     if (firstLeftClickLine){
+                        firstClickLine =  true;
                         clickX = e.getX();
                         clickY = e.getY();
                         firstLeftClickLine = !firstLeftClickLine;
+                        color = Color.MAGENTA.getRGB();
                     }else {
-                        drawables.add(new Circle(clickX,clickY,e.getX(),e.getY()));
+                        drawables.add(new Circle(clickX,clickY,e.getX(),e.getY(),color));
                         firstLeftClickLine = !firstLeftClickLine;
                     }
                 }
@@ -148,7 +158,7 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
                     //cislo 2 vykresluje pravidelny n-uhelnik
                     type = DrawableType.DEFIN_NOBJECT;
                 }
-                if (e.getKeyCode() == KeyEvent.VK_3){
+                if (e.getKeyCode() == KeyEvent.VK_NUMPAD3){
                     type = DrawableType.N_OBJECT;
                 }
                 super.keyReleased(e);
@@ -172,15 +182,15 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
         img.getGraphics().fillRect(0,0,img.getWidth(),img.getHeight()); // prideleni pozadi
 
         if (!firstLeftClickLine){
-            renderer.kruznice(clickX,clickY,coorX,coorY);
-            renderer.lineDDA(clickX,clickY, coorX, coorY);
+            renderer.kruznice(clickX,clickY,coorX,coorY,color);
+            renderer.lineDDA(clickX,clickY, coorX, coorY,color);
         }
 
         if (type == DrawableType.DEFIN_NOBJECT && !firstClickLine){
-            renderer.lineDDA(clickX,clickY, coorX, coorY);
-            renderer.polygon(clickX,clickY, coorX, coorY,count);
+            renderer.lineDDA(clickX,clickY, coorX, coorY,color);
+            renderer.polygon(clickX,clickY, coorX, coorY,count,color);
         } else if (!firstClickLine){
-            renderer.lineDDA(clickX,clickY, coorX, coorY);
+            renderer.lineDDA(clickX,clickY, coorX, coorY,color);
         }
         for (Drawable drawable : drawables) {
             drawable.draw(renderer);
