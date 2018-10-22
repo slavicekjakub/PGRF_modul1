@@ -1,7 +1,9 @@
 package utils;
 
+import com.sun.scenario.effect.impl.sw.java.JSWBlend_BLUEPeer;
 import drawables.Point;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -139,6 +141,15 @@ public class Renderer {
             y2 = points.get(i+1).getY();
             i++;
             lineDDA(x1,y1,x2,y2, color);
+        }
+    }
+
+    public void seedFill(int x, int y, int oldColor, int newColor){
+        if (oldColor == img.getRGB(x,y)){
+            drawPixel(x,y, Color.CYAN.getRGB());
+            //TODO: aby se seedFill provedl do vsech 4 stran
+
+            
         }
     }
 }
