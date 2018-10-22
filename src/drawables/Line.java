@@ -18,4 +18,5 @@ public class Line implements Drawable{
     public void draw(Renderer renderer) {
         renderer.lineDDA(x1,y1,x2,y2,color);
     }
+
 }

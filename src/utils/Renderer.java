@@ -24,8 +24,8 @@ public class Renderer {
     }
 
     private void drawPixel(int x, int y, int color) {
-        if (x < 0 & x > 500) return;
-        if (y < 0 & y > 500) return;
+        if (x < 0 || x > 1100) return;
+        if (y < 0 || y > 700) return;
         img.setRGB(x, y, color);
     }
 

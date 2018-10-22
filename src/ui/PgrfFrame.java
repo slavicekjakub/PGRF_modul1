@@ -35,6 +35,7 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
     private boolean firstLeftClickLine = true;
     private boolean n = true;
     private boolean doubleClick = false;
+    private boolean fillMode = false;
     private DrawableType type = DrawableType.LINE;
 
     public static void main(String... args) {
@@ -161,6 +162,10 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
                 if (e.getKeyCode() == KeyEvent.VK_NUMPAD3){
                     type = DrawableType.N_OBJECT;
                 }
+                if (e.getKeyCode() == KeyEvent.VK_F){
+                    fillMode = !fillMode;
+                }
+
                 super.keyReleased(e);
             }
         });
@@ -179,7 +184,10 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
     }
 
     private void draw(){
-        img.getGraphics().fillRect(0,0,img.getWidth(),img.getHeight()); // prideleni pozadi
+        if (!fillMode){
+            img.getGraphics().fillRect(0,0,img.getWidth(),img.getHeight()); // prideleni pozadi
+        }
+
 
         if (!firstLeftClickLine){
             renderer.kruznice(clickX,clickY,coorX,coorY,color);
