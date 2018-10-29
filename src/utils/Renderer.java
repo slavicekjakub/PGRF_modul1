@@ -1,10 +1,12 @@
 package utils;
 
 import com.sun.scenario.effect.impl.sw.java.JSWBlend_BLUEPeer;
+import drawables.Edge;
 import drawables.Point;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Renderer {
@@ -147,9 +149,39 @@ public class Renderer {
     public void seedFill(int x, int y, int oldColor, int newColor){
         if (oldColor == img.getRGB(x,y)){
             drawPixel(x,y, Color.CYAN.getRGB());
-            //TODO: aby se seedFill provedl do vsech 4 stran
+            seedFill(x-1,y,oldColor,newColor);
+            seedFill(x+1,y,oldColor,newColor);
+            seedFill(x,y-1,oldColor,newColor);
+            seedFill(x,y+1,oldColor,newColor);
 
-            
         }
+    }
+
+    public void scanLine(List<Point> points, int color,int fillColor){
+        int yMax = 0; int yMin = img.getHeight();
+        List<Edge> edges = new ArrayList<>();
+
+        for (int i = 0; i < points.size();i++) {
+            //vytváření úseček (Edge)
+            //volání určitých metod
+            // hledání hraničních y
+            //přidání Edge do seznamu Edges
+        }
+
+        /* TODO:
+            1) Připravit yMax a Ymin -- COMPLETED
+            2) definice sezmanu úseček
+                - z bodů Edges
+                - seřadit dle (y1 <y2)
+                - vypočítat koeficienty k a q
+                - oříznout poslední pixel
+            3) for cyklus od yMin po yMax
+                - pro každé y hledáme průsečík s úsečkami
+                - seznam průsečíků
+                - pro sudý počet průsečíků..
+                    - seřadit dle x
+            4) obtažení okrajů
+         */
+
     }
 }

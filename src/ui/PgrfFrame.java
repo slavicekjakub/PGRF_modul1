@@ -16,7 +16,7 @@ import java.util.TimerTask;
 
 public class PgrfFrame extends JFrame implements MouseMotionListener {
 
-    static int FPS = 1000/60;
+    static int FPS = 1000/30;
     private BufferedImage img;
     static int width = 1200;
     static int height = 800;
@@ -24,11 +24,10 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
     private Renderer renderer;
     private Polygon polygon = new Polygon();
     private Point point;
-    private int coorX, coorY,firstX, firstY;
-    private int clickX = 300;
-    private int clickY = 300;
+    private int coorX, coorY,firstX, firstY,clickX,clickY;
     private int count = 5;
     private int color = Color.GREEN.getRGB();
+    private Drawable drawable;
 
     private List<Drawable> drawables;
     private boolean firstClickLine = true;
@@ -36,7 +35,7 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
     private boolean n = true;
     private boolean doubleClick = false;
     private boolean fillMode = false;
-    private DrawableType type = DrawableType.LINE;
+    private DrawableType type = DrawableType.N_OBJECT;
 
     public static void main(String... args) {
         PgrfFrame pgrfFrame = new PgrfFrame();
@@ -59,77 +58,78 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if(e.getButton()== MouseEvent.BUTTON1){
-                    if (type == DrawableType.LINE){
-                        if (firstClickLine){
+                    if(!fillMode){
+                        if (type == DrawableType.LINE){
+                            if (firstClickLine){
+                                clickX = e.getX();
+                                clickY = e.getY();
+                                firstClickLine = !firstClickLine;
+                                firstLeftClickLine = true;
+                                color = Color.GREEN.getRGB();
+                            }else {
+                                drawables.add(new Line(clickX,clickY,e.getX(),e.getY(),color));
+                                firstClickLine = !firstClickLine;
+                            }
+                        }
+
+                        if (type == DrawableType.DEFIN_NOBJECT){
+                            if (firstClickLine){
+                                clickX = e.getX();
+                                clickY = e.getY();
+                                firstClickLine = false;
+                                firstLeftClickLine = true;
+                                color = Color.BLUE.getRGB();
+                            }else {
+                                draw();
+                                drawables.add(new DefPolygon(clickX,clickY,e.getX(),e.getY(),count,color));
+                                firstClickLine = true;
+                            }
+                        }
+
+                        if(type == DrawableType.N_OBJECT){
+                            if (e.getClickCount()==2){
+                                clickX = e.getX();
+                                clickY = e.getY();
+                                //TODO: mozna dostat clickX a Y do finish Polygon
+                                finishPolygon();
+                            }else {
+                                clickX = e.getX();
+                                clickY = e.getY();
+                                firstLeftClickLine = true;
+                                if(n){
+                                    polygon = new Polygon();
+                                    firstX = e.getX();
+                                    firstY = e.getY();
+                                    point = new Point(clickX,clickY);
+                                    polygon.addPoint(point);
+                                    n = !n;
+                                    firstClickLine = !firstClickLine;
+                                    color = Color.RED.getRGB();
+                                } else {
+                                    Point pos = new Point(clickX,clickY);
+                                    drawables.add(new Polygon(polygon.addPoint(pos),color));
+                                }
+                            }
+
+                        }
+                    }
+
+                    if(e.getButton()== MouseEvent.BUTTON3){
+                        if (firstLeftClickLine){
+                            firstClickLine =  true;
                             clickX = e.getX();
                             clickY = e.getY();
-                            firstClickLine = !firstClickLine;
-                            firstLeftClickLine = true;
-                            color = Color.GREEN.getRGB();
+                            firstLeftClickLine = !firstLeftClickLine;
+                            color = Color.MAGENTA.getRGB();
                         }else {
-                            drawables.add(new Line(clickX,clickY,e.getX(),e.getY(),color));
-                            firstClickLine = !firstClickLine;
+                            drawables.add(new Circle(clickX,clickY,e.getX(),e.getY(),color));
+                            firstLeftClickLine = !firstLeftClickLine;
                         }
-                    }
-
-                    if (type == DrawableType.DEFIN_NOBJECT){
-                        if (firstClickLine){
-                            clickX = e.getX();
-                            clickY = e.getY();
-                            firstClickLine = false;
-                            firstLeftClickLine = true;
-                            color = Color.BLUE.getRGB();
-                        }else {
-                            draw();
-                            drawables.add(new DefPolygon(clickX,clickY,e.getX(),e.getY(),count,color));
-                            firstClickLine = true;
-                        }
-                    }
-
-                    if(type == DrawableType.N_OBJECT){
-                        //TODO: můj úhelník
-                        // znamena, ze se bude klikak a az bude dvojklik tak se spoji posledni s prvni
-                        clickX = e.getX();
-                        clickY = e.getY();
-                        firstLeftClickLine = true;
-                        if(n){
-                            polygon = new Polygon();
-                            firstX = e.getX();
-                            firstY = e.getY();
-                            point = new Point(clickX,clickY);
-                            polygon.addPoint(point);
-                            n = !n;
-                            firstClickLine = !firstClickLine;
-                            color = Color.RED.getRGB();
-                        } else {
-                            Point pos = new Point(clickX,clickY);
-                            drawables.add(new Polygon(polygon.addPoint(pos),color));
-                        }
-                    }
-
-                    if(e.getClickCount()==2 && type == DrawableType.N_OBJECT){
-                        clickX = e.getX();
-                        clickY = e.getY();
-                        color = Color.RED.getRGB();
-                        drawables.add(new Line(firstX,firstY,clickX,clickY,color));
-                        firstClickLine = true;
-                        n = true;
-                        doubleClick = true;
-                    }
-                }
-
-                if(e.getButton()== MouseEvent.BUTTON3){
-                    if (firstLeftClickLine){
-                        firstClickLine =  true;
-                        clickX = e.getX();
-                        clickY = e.getY();
-                        firstLeftClickLine = !firstLeftClickLine;
-                        color = Color.MAGENTA.getRGB();
                     }else {
-                        drawables.add(new Circle(clickX,clickY,e.getX(),e.getY(),color));
-                        firstLeftClickLine = !firstLeftClickLine;
+                        renderer.seedFill(e.getX(),e.getY(),img.getRGB(e.getX(),e.getY()),Color.BLACK.getRGB());
                     }
-                }
+                    }
+
 
                 super.mouseClicked(e);
             }
@@ -183,6 +183,14 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
 
     }
 
+    private void finishPolygon(){
+        drawables.add(new Line(firstX,firstY,clickX,clickY,color));
+        firstClickLine = true;
+        n = true;
+        doubleClick = true;
+        ((Polygon) drawable).setDone(true);
+    }
+
     private void draw(){
         if (!fillMode){
             img.getGraphics().fillRect(0,0,img.getWidth(),img.getHeight()); // prideleni pozadi
@@ -219,5 +227,8 @@ public class PgrfFrame extends JFrame implements MouseMotionListener {
     public void mouseMoved(MouseEvent e) {
         coorX = e.getX();
         coorY = e.getY();
+        if (drawable != null){
+            drawable.modifyLastPoint(e.getX(),e.getY());
+        }
     }
 }
