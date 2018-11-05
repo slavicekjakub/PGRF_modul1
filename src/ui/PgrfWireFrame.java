@@ -72,8 +72,11 @@ public class PgrfWireFrame extends JFrame {
     private void draw() {
         img.getGraphics().fillRect(0,0,img.getWidth(),img.getHeight());
 
+        for (Solid solid : solids){
+            transformer.drawWireFrame(solid);
+        }
 
-        panel.getGraphics().drawImage(img, 0,0,img.getWidth(), img.getHeight(), null); // zde ji to vykresli
+        panel.getGraphics().drawImage(img, 0,0, null); // zde ji to vykresli
         panel.paintComponents(getGraphics());
     }
     /*
