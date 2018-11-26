@@ -43,4 +43,6 @@ public class Edge {
     public int ymax(int yMax){
         return 0; //TODO: dle y1, y2 a yMax rozhodnout, které vracíme
     }
+
+
 }

@@ -93,8 +93,6 @@ public class Renderer {
             // potreba zmenit x0, y0
             x0 = x;
             y0 = y;
-
-
         }
     }
 

@@ -2,9 +2,13 @@ package utils;
 
 import solids.Solid;
 import transforms.Mat4;
+import transforms.Mat4Identity;
 import transforms.Point3D;
+import transforms.Vec3D;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Optional;
 
 public class Transformer {
 
@@ -16,6 +20,10 @@ public class Transformer {
 
     public Transformer(BufferedImage img) {
         this.img = img;
+        this.model = new Mat4Identity();
+        this.view = new Mat4Identity();
+        this.projection = new Mat4Identity();
+
     }
 
     //FUNKCE
@@ -33,12 +41,40 @@ public class Transformer {
     }
 
     private void transformEdge(Mat4 mat, Point3D p1, Point3D p2) {
-        /*TODO: 1) vynásobit body maticí
-                2) ořez dle w z bodů
-                3) tvorba z vektorů dehomogenizací (Point3D.dehomog())
-                4) přepočet souřadnic na výšku/šířku našeho okna (viewport)
-                5) Výsledek vykreslit - drawline(..)
-        */
+        // 1) vynásobit body maticí
+        p1 = p1.mul(mat);
+        p2 = p2.mul(mat);
+
+        // 2) ořez dle W bodů
+        if (p1.getW() <= 0 && p2.getW() <=0) return;
+
+        // 3) tvorba z vektorů dehomogenizací (Point3D.dehomog())
+        Optional<Vec3D> vo1 = p1.dehomog();
+        Optional<Vec3D> vo2 = p2.dehomog();
+
+        if(!vo1.isPresent() || !vo2.isPresent()) return;
+
+        Vec3D v1 = vo1.get();
+        Vec3D v2 = vo2.get();
+
+        // 4) přepočet souřadnic na výšku/šířku našeho okna (viewport)
+        v1 = v1.mul(new Vec3D(1,1,1))
+                .add(new Vec3D(1,1,0))
+                .mul(new Vec3D(
+                        0.5 * (img.getWidth()-1),
+                        0.5 * (img.getHeight()),
+                        1));
+
+        v2 = v1.mul(new Vec3D(1,1,1))
+                .add(new Vec3D(1,1,0))
+                .mul(new Vec3D(
+                        0.5 * (img.getWidth()-1),
+                        0.5 * (img.getHeight()),
+                        1));
+
+        // 5) Výsledek vykreslit - drawline(..)
+        lineDDA((int)v1.getX(),(int)v1.getY(),(int)v2.getX(),(int)v2.getY(), Color.BLACK.getRGB());
+
     }
 
     //metody vykreslování
@@ -90,5 +126,17 @@ public class Transformer {
         if (x < 0 || x > 1100) return;
         if (y < 0 || y > 700) return;
         img.setRGB(x, y, color);
+    }
+
+    public void setModel(Mat4 model) {
+        this.model = model;
+    }
+
+    public void setView(Mat4 view) {
+        this.view = view;
+    }
+
+    public void setProjection(Mat4 projection) {
+        this.projection = projection;
     }
 }
